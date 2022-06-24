@@ -1,0 +1,123 @@
+= User Manual
+
+== Purpose
+
+The _dmtex-format-object-core_ component provides classes and methods to build a model from any object that can be then formatted into any custom format.
+
+== Code samples
+
+The general flow is like following
+
+[source,java]
+----
+class Sample {
+  public static void main(String[] args) {
+    Object source = ... //<1>
+    ObjectFormatter formatter = new DefaultObjectFormatter(); //<2>
+    Writer writer = new StringWriter(); //<3>
+    formatter.format(source, writer); //<4>
+    System.out.println(writer);
+  }
+}
+----
+<1> Provide source object, its class should be marked by appropriate annotations.
+<2> Instantiate `ObjectFormatter` implementation.
+<3> Provide `Writer` as target of formatting.
+<4> Do formatting.
+
+
+== Model configuration
+
+The object model can be configured by two annotations `@FormatEntity` and `@FormatField`. Any object to be formatted should be marked by `@FormatEntity` annotation. Otherwise exception will be thrown.
+
+=== `@FormatEntity` annotation
+
+The annotation has two optional methods:
+
+* `String value()` provides name of the field containing object name; if value is empty then object does not have special name to be formatted.
+* `String[] fields()` provides list of fields names used for formatting.
+
+The annotation can be applied to class or field. In case of class it applied for top level object. In case of field it can override formatting of object stored in field annotated.
+
+=== `@FormatField` annotation
+
+The annotation has two optional methods:
+
+* `String value()` provides resource key name to get name used at formatting.
+* `Class<? extends Function<?, FormatValue>> extractor()` provides class used for special field formatting.
+
+== Building a model from object
+
+The main workflow is represented on the following diagram:
+
+[plantuml,workflow,svg]
+----
+actor Client
+Client -> ObjectFormatter: format(object, writer)
+ObjectFormatter -> ModelBuilder: build(object)
+ModelBuilder -> ObjectFormatter: FormatGroup
+ObjectFormatter -> ObjectFormatterImpl: write(group, writer)
+----
+
+The building model logic is incapsulated in `ObjectFormatter` class, and its common thing which does not depend on representation details. `ObjectFormatter` should be subclassed to provide various supported formats (plain text, HTML, whatever)
+
+The component builds a model from an object using the following classes.
+
+[plantuml,classes,svg]
+----
+class FormatFroup {
+  - String name
+  - List items
+}
+
+class FormatItem {
+  - String name
+  - FormatValue value
+}
+
+interface FormatValue
+class SingleValue
+class GroupValue
+class ListValue
+
+FormatFroup o-> FormatItem
+FormatItem o-> FormatValue
+FormatValue <|-- SingleValue
+FormatValue <|-- GroupValue
+FormatValue <|-- ListValue
+----
+
+If some field requires specific formatting then `Function` is to be implemented which converts given object to `FormatValue` instance. And that implementation should be provided by SPI mechanism.
+
+The example of specific extractor is following:
+
+[source,java]
+----
+  public class KeyAwareExtractor implements Function<KeyAware, FormatValue> {
+
+    @Override
+    public SingleValue apply(KeyAware object) {
+      return findByKey(object.getKey()).map(SingleValue::new).orElseThrow();
+    }
+  }
+----
+
+== Formatting customization and SPI
+
+SPI provides interface `ObjectFormatterServiceProvider` with two methods
+
+[plantuml,spi,svg]
+----
+interface ObjectFormatterServiceProvider {
+  + List<ResourceBundle> resourceBundles()
+  + List<Function<?, FormatValue>> extractors()
+}
+----
+
+[cols="1,1,1,2"]
+|===
+| Method            | Type | Default       | Description
+
+| resourceBundles() | List | _emptyList()_ | names of additional resource bundles
+| extractors()      | List | _emptyList()_ | additional extractors
+|===
