@@ -1,0 +1,2 @@
+com.github.dmtex.format.object.spi.ExtractorObjectFormatterServiceProvider
+com.github.dmtex.format.object.spi.ResourceBundleObjectFormatterServiceProvider
