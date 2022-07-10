@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.github.dmtex.sdk</groupId>
+    <artifactId>dmtex-parent</artifactId>
+    <version>1</version>
+    <relativePath/>
+  </parent>
+  <artifactId>dmtex-format-object-html</artifactId>
+  <version>1.0</version>
+  <name>DMTex Format Object HTML</name>
+  <description>DMTex Format Object HTML Support Classes</description>
+  <properties>
+    <surefire.useModulePath>false</surefire.useModulePath>
+    <!-- Dependency versions -->
+    <dmtex-format-object-core.version>1.0</dmtex-format-object-core.version>
+    <dmtex-math-adapter.version>1.0</dmtex-math-adapter.version>
+    <j2html.version>1.6.0</j2html.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>com.github.dmtex.sdk</groupId>
+      <artifactId>dmtex-format-object-core</artifactId>
+      <version>${dmtex-format-object-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.dmtex.sdk</groupId>
+      <artifactId>dmtex-math-adapter</artifactId>
+      <version>${dmtex-math-adapter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.j2html</groupId>
+      <artifactId>j2html</artifactId>
+      <version>${j2html.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <configuration>
+            <excludeFilterFile>${basedir}/etc/spotbugs-exclude.xml</excludeFilterFile>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
